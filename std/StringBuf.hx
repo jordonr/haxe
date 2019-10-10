@@ -1,5 +1,5 @@
 /*
- * Copyright (C)2005-2012 Haxe Foundation
+ * Copyright (C)2005-2019 Haxe Foundation
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -19,6 +19,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
+
 /**
 	A String buffer is an efficient way to build a big string by appending small
 	elements together.
@@ -31,22 +32,23 @@
 	values. However, the internal buffer cannot be modified.
 **/
 class StringBuf {
-
-	var b:String = "";
+	var b:String;
 
 	/**
 		The length of `this` StringBuf in characters.
 	**/
-	public var length(get,never) : Int;
+	public var length(get, never):Int;
 
 	/**
 		Creates a new StringBuf instance.
 
 		This may involve initialization of the internal buffer.
 	**/
-	public function new() {}
+	public inline function new() {
+		b = "";
+	}
 
-	inline function get_length() : Int {
+	inline function get_length():Int {
 		return b.length;
 	}
 
@@ -59,7 +61,7 @@ class StringBuf {
 
 		If `x` is null, the String "null" is appended.
 	**/
-	public inline function add<T>( x : T ) : Void {
+	public inline function add<T>(x:T):Void {
 		b += x;
 	}
 
@@ -69,7 +71,7 @@ class StringBuf {
 		If `c` is negative or has another invalid value, the result is
 		unspecified.
 	**/
-	public inline function addChar( c : Int ) : Void {
+	public inline function addChar(c:Int):Void {
 		b += String.fromCharCode(c);
 	}
 
@@ -85,7 +87,7 @@ class StringBuf {
 		If `len` is omitted or null, the substring ranges from `pos` to the end
 		of `s`.
 	**/
-	public inline function addSub( s : String, pos : Int, ?len : Int) : Void {
+	public inline function addSub(s:String, pos:Int, ?len:Int):Void {
 		b += (len == null ? s.substr(pos) : s.substr(pos, len));
 	}
 
@@ -94,8 +96,7 @@ class StringBuf {
 
 		The buffer is not emptied by this operation.
 	**/
-	public inline function toString() : String {
+	public inline function toString():String {
 		return b;
 	}
-
 }

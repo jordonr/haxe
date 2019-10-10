@@ -1,5 +1,5 @@
 /*
- * Copyright (C)2005-2012 Haxe Foundation
+ * Copyright (C)2005-2019 Haxe Foundation
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -19,6 +19,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
+
 package haxe.xml;
 
 /**
@@ -26,22 +27,20 @@ package haxe.xml;
 	It will	only allow access to fields which corresponds to an "id" attribute
 	value in the XML file :
 
-	[
-	class MyXml extends haxe.xml.Proxy<"my.xml",MyStructure> {
+	```haxe
+	class MyXml extends haxe.xml.Proxy<"my.xml", MyStructure> {
 	}
-	...
+
 	var h = new haxe.ds.StringMap<MyStructure>();
 	// ... fill h with "my.xml" content
 	var m = new MyXml(h.get);
 	trace(m.myNode.structField);
-	// access to "myNode" is only possible
-	// if you have an id="myNode" attribute
-	// in your XML, and completion works as well
-	]
+	// Access to "myNode" is only possible if you have an id="myNode" attribute
+	// in your XML, and completion works as well.
+	```
 **/
-class Proxy<Const,T> {
-
-	var __f : String -> T;
+class Proxy<Const, T> {
+	var __f:String->T;
 
 	public function new(f) {
 		this.__f = f;
@@ -50,5 +49,4 @@ class Proxy<Const,T> {
 	public function resolve(k) {
 		return __f(k);
 	}
-
 }

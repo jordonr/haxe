@@ -1,21 +1,54 @@
-class TestSys extends haxe.unit.TestCase {
-	function testArgs() {
-		var args = Sys.args();
-		assertEquals(3, args.length);
-		assertEquals("foo", args[0]);
-		assertEquals("12", args[1]);
-		assertEquals("a b c\\ &<>[\"]#{}|", args[2]);		
+import utest.Assert;
+
+class TestSys extends TestCommandBase {
+	override function run(cmd:String, ?args:Array<String>):Int {
+		return Sys.command(cmd, args);
 	}
 
 	function testEnv() {
+		#if !(java)
 		Sys.putEnv("foo", "value");
-		assertEquals("value", Sys.getEnv("foo"));
-		assertEquals(null, Sys.getEnv("doesn't exist"));
+		Assert.equals("value", Sys.getEnv("foo"));
+		#end
+		Assert.equals(null, Sys.getEnv("doesn't exist"));
 
+		#if !(java)
 		var env = Sys.environment();
-		assertEquals("value", env.get("foo"));
+		Assert.equals("value", env.get("foo"));
+		#end
 	}
 
+	function testProgramPath() {
+		var p = Sys.programPath();
+
+		Assert.isTrue(haxe.io.Path.isAbsolute(p));
+		Assert.isTrue(sys.FileSystem.exists(p));
+
+		#if interp
+			Assert.isTrue(StringTools.endsWith(p, "Main.hx"));
+		#elseif neko
+			Assert.isTrue(StringTools.endsWith(p, "sys.n"));
+		#elseif cpp
+			switch (Sys.systemName()) {
+				case "Windows":
+					Assert.isTrue(StringTools.endsWith(p, "Main-debug.exe"));
+				case _:
+					Assert.isTrue(StringTools.endsWith(p, "Main-debug"));
+			}
+		#elseif cs
+			Assert.isTrue(StringTools.endsWith(p, "Main-Debug.exe"));
+		#elseif java
+			Assert.isTrue(StringTools.endsWith(p, "Main-Debug.jar"));
+		#elseif python
+			Assert.isTrue(StringTools.endsWith(p, "sys.py"));
+		#elseif php
+			Assert.isTrue(StringTools.endsWith(p, "index.php"));
+		#elseif lua
+			Assert.isTrue(StringTools.endsWith(p, "sys.lua"));
+		#end
+	}
+
+	#if !java
 	function testCwd() {
 		var cur = Sys.getCwd();
 		Sys.setCwd("../");
@@ -23,6 +56,8 @@ class TestSys extends haxe.unit.TestCase {
 		function normalize(path) {
 			return haxe.io.Path.addTrailingSlash(haxe.io.Path.normalize(path));
 		}
-		assertEquals(normalize(newCwd), normalize(Sys.getCwd()));
+		Assert.equals(normalize(newCwd), normalize(Sys.getCwd()));
+		Sys.setCwd(cur);
 	}
+	#end
 }

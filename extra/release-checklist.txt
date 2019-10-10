@@ -1,18 +1,24 @@
-- Make sure CHANGES.txt has a proper date set!
-- Make sure `version` in main.ml has the correct value.
-- Merge development branch into master.
-- Wait for Travis to greenlight master.
-- Tag master as MAJOR.MINOR.PATCH.
-- Wait for builds.haxe.org to build master.
-- If required, tell Caue to fix builds.haxe.org.
-- Get https://github.com/waneck/hxbuilds/tree/master/release-helper
-- Run it with the fileName corresponding to the latest master file name on builds.haxe.org.
-- Upload generated files to some place.
-- Update Haxe download page.
-- Update Github README page.
-- Double-check that you got the links right.
-- Regenerate and upload API documentation.
-- Update http://haxe.org/file/CHANGES.txt
-- Write announcement post.
-- Post announcement post.
+# Preparing related projects
 
+- Check that haxelib is working
+- Make sure to update the haxelib submodule
+- Check that the run-time haxelibs are ready for release: hxcpp, hxjava, hxcs
+
+# Making the release
+
+- Make sure CHANGES.txt has a proper date set!
+- Make sure `version` in globals.ml has the correct value
+- Check if the protocolVersion in displayJson.ml has to be updated
+- Make an empty GitHub release in https://github.com/HaxeFoundation/haxe/releases (do this first because we need the tag for the builds)
+- Wait for the CI to build (check https://build.haxe.org/builds/haxe/)
+- Get https://github.com/simn/hxgithub
+- Store your GitHub personal access token in .github-token
+- Run something like this: `neko release.n -h 4.0.0-rc.1 -u -uw -ur -d haxe_2019-02-01_development_1fdd3d5.zip --dry`
+- Tell yourself that you're gonna fix `-doc` generation next time
+- Write the announcement to `./haxe-version/RELEASE.md`
+- If everything was working, run the command again without `--dry` (and probably without the `-d`)
+- Update https://github.com/HaxeFoundation/haxe.org/blob/staging/downloads/versions.json
+
+# Announcing the release
+
+- Find someone to announce the release on our various communication channels

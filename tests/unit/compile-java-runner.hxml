@@ -1,2 +1,3 @@
--main RunJava
--neko runjava.n
+-p src
+--main RunJava
+-neko bin/runjava.n

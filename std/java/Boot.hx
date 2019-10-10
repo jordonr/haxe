@@ -1,5 +1,5 @@
 /*
- * Copyright (C)2005-2012 Haxe Foundation
+ * Copyright (C)2005-2019 Haxe Foundation
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -19,14 +19,16 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
+
 package java;
+
 import java.internal.Exceptions;
 import java.internal.Function;
 import java.internal.HxObject;
 import java.internal.Runtime;
-import java.internal.Iterator;
 import java.Lib;
-//import java.internal.StringExt;
+import java.Init;
+// import java.internal.StringExt;
 import java.StdTypes;
 import Reflect;
 import Map;
@@ -45,9 +47,5 @@ import java.lang.Throwable;
 import java.internal.StringExt;
 import java.internal.FieldLookup;
 
-extern class Boot
-{
-
-
-
-}
+@:dox(hide)
+extern class Boot {}

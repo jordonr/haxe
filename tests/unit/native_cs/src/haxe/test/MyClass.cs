@@ -47,6 +47,16 @@ public class MyClass
 	{
 	}
 
+	public void outTest(out int i)
+	{
+		i = 42;
+	}
+
+	public void refTest(ref int i)
+	{
+		i *= 42;
+	}
+
 	public void dispatch()
 	{
 		if (voidvoid != null)
@@ -72,6 +82,7 @@ public class MyClass
 			voidvoid2.Invoke();
 	}
 
+	public readonly int readonlyField = 5;
 }
 
 public delegate void VoidVoid();

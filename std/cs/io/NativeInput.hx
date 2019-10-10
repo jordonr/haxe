@@ -1,5 +1,5 @@
 /*
- * Copyright (C)2005-2012 Haxe Foundation
+ * Copyright (C)2005-2019 Haxe Foundation
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -19,70 +19,76 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
+
 package cs.io;
+
 import haxe.Int64;
 import haxe.io.Bytes;
 import haxe.io.Eof;
 import haxe.io.Error;
 import haxe.io.Input;
 
-class NativeInput extends Input
-{
-	public var canSeek(get_canSeek, null):Bool;
+class NativeInput extends Input {
+	public var canSeek(get, never):Bool;
 
 	var stream:cs.system.io.Stream;
-	public function new(stream)
-	{
+	var _eof:Bool;
+
+	public function new(stream) {
 		this.stream = stream;
-		if (!stream.CanRead) throw "Write-only stream";
+		this._eof = false;
+		if (!stream.CanRead)
+			throw "Write-only stream";
 	}
 
-	override public function readByte():Int
-	{
+	override public function readByte():Int {
 		var ret = stream.ReadByte();
-		if (ret == -1) throw new Eof();
-		return ret;
-	}
-
-	override public function readBytes(s:Bytes, pos:Int, len:Int):Int
-	{
-		if( pos < 0 || len < 0 || pos + len > s.length )
-			throw Error.OutsideBounds;
-		var ret = stream.Read(s.getData(), pos, len);
-		if (ret == 0)
+		if (ret == -1) {
+			_eof = true;
 			throw new Eof();
+		}
 		return ret;
 	}
 
-	override public function close():Void
-	{
+	override public function readBytes(s:Bytes, pos:Int, len:Int):Int {
+		if (pos < 0 || len < 0 || pos + len > s.length)
+			throw Error.OutsideBounds;
+		var ret = 0;
+		var data = s.getData();
+		try {
+			ret = stream.Read(data, pos, len);
+		} catch (e: Dynamic) {}
+		if (ret == 0) {
+			_eof = true;
+			throw new Eof();
+		}
+		return ret;
+	}
+
+	override public function close():Void {
 		stream.Close();
 	}
 
-	private function get_canSeek():Bool
-	{
+	private inline function get_canSeek():Bool {
 		return stream.CanSeek;
 	}
 
-	public function seek( p : Int, pos : sys.io.FileSeek ) : Void
-	{
-		var p = switch(pos)
-		{
+	public function seek(p:Int, pos:sys.io.FileSeek):Void {
+		_eof = false;
+		var pos = switch (pos) {
 			case SeekBegin: cs.system.io.SeekOrigin.Begin;
 			case SeekCur: cs.system.io.SeekOrigin.Current;
 			case SeekEnd: cs.system.io.SeekOrigin.End;
 		};
 
-		stream.Seek(cast(p, Int64), p);
+		stream.Seek(cast(p, Int64), pos);
 	}
 
-	public function tell() : Int
-	{
+	public function tell():Int {
 		return cast(stream.Position, Int);
 	}
 
-	public function eof() : Bool
-	{
-		return stream.Position == stream.Length;
+	public inline function eof():Bool {
+		return _eof;
 	}
 }

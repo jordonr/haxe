@@ -1,5 +1,5 @@
 /*
- * Copyright (C)2005-2012 Haxe Foundation
+ * Copyright (C)2005-2019 Haxe Foundation
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -19,7 +19,9 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
+
 package java.internal;
+
 import java.internal.Runtime;
 
 /**
@@ -29,53 +31,52 @@ import java.internal.Runtime;
  *
  * @author waneck
  */
-@:abstract @:nativeGen @:native("haxe.lang.Function") @:keep private class Function
-{
-	function new(arity:Int, type:Int)
-	{
-
-	}
+@:abstract @:nativeGen @:native("haxe.lang.Function") @:keep class Function {
+	function new(arity:Int, type:Int) {}
 }
 
-@:nativeGen @:native("haxe.lang.VarArgsBase") @:keep private class VarArgsBase extends Function
-{
-	public function __hx_invokeDynamic(dynArgs:Array<Dynamic>):Dynamic
-	{
+@:nativeGen @:native("haxe.lang.VarArgsBase") @:keep private class VarArgsBase extends Function {
+	public function __hx_invokeDynamic(dynArgs:java.NativeArray<Dynamic>):Dynamic {
 		throw "Abstract implementation";
-		return null;
 	}
 }
 
-@:nativeGen @:native('haxe.lang.VarArgsFunction') @:keep class VarArgsFunction extends VarArgsBase
-{
+@:nativeGen @:native('haxe.lang.VarArgsFunction') @:keep class VarArgsFunction extends VarArgsBase {
 	private var fun:Array<Dynamic>->Dynamic;
 
-	public function new(fun)
-	{
+	public function new(fun) {
 		super(-1, -1);
 		this.fun = fun;
 	}
 
-	override public function __hx_invokeDynamic(dynArgs:Array<Dynamic>):Dynamic
-	{
-		return fun(dynArgs);
+	override public function __hx_invokeDynamic(dynArgs:java.NativeArray<Dynamic>):Dynamic {
+		return fun(@:privateAccess Array.ofNative(dynArgs));
 	}
 }
 
-@:nativeGen @:native('haxe.lang.Closure') @:keep class Closure extends VarArgsBase
-{
+@:nativeGen @:native('haxe.lang.Closure') @:keep class Closure extends VarArgsBase {
 	private var obj:Dynamic;
 	private var field:String;
 
-	public function new(obj:Dynamic, field)
-	{
+	public function new(obj:Dynamic, field) {
 		super(-1, -1);
 		this.obj = obj;
 		this.field = field;
 	}
 
-	override public function __hx_invokeDynamic(dynArgs:Array<Dynamic>):Dynamic
-	{
+	override public function __hx_invokeDynamic(dynArgs:java.NativeArray<Dynamic>):Dynamic {
 		return Runtime.callField(obj, field, dynArgs);
+	}
+
+	public function equals(obj:Dynamic):Bool {
+		if (obj == null)
+			return false;
+
+		var c:Closure = cast obj;
+		return (c.obj == this.obj && c.field == this.field);
+	}
+
+	public function hashCode():Int {
+		return obj.hashCode() ^ untyped field.hashCode();
 	}
 }

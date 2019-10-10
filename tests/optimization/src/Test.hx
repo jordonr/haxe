@@ -8,12 +8,24 @@ class InlineCtor {
 	}
 }
 
-@:enum abstract MyEnum(String) to String {
+class Set {
+	var amount:Int;
+	public inline function new(a:Int) amount = a;
+	public inline function count() return amount;
+}
+
+typedef Countable = {
+	function count():Int;
+}
+
+enum abstract MyEnum(String) to String {
 	var A = "a";
 }
 
+@:analyzer(no_local_dce)
+@:analyzer(no_user_var_fusion)
 class Test {
-	@:js('3;')
+	@:js('')
 	static function testNoOpRemoval() {
 		1;
 		2;
@@ -33,10 +45,10 @@ class Test {
 	@:js('
 		var c_x = 12;
 		var c_y = "foo";
-		var x = c_x;
+		var x = 12;
 		c_x = 13;
-		x = c_x;
-		var y = c_y;
+		x = 13;
+		var y = "foo";
 	')
 	static function testInlineCtor1() {
 		var c = new InlineCtor(12, "foo");
@@ -52,7 +64,7 @@ class Test {
 		a = 2;
 		var c_x = 12;
 		var c_y = "foo";
-		a = c_x;
+		a = 12;
 	')
 	static function testInlineCtor2() {
 		var a = 0;
@@ -71,7 +83,7 @@ class Test {
 		a = 1;
 		var b_x = 2;
 		var b_y = "b";
-		b_x = a;
+		b_x = 1;
 	')
 	static function testInlineCtor3() {
 		var a = 0;
@@ -84,10 +96,21 @@ class Test {
 	}
 
 	@:js('
+		var v_amount = 10;
+		var a = 10;
+	')
+	static function testInlineCtor_passedToInlineMethodAsAnonConstraint() {
+		var a = count(new Set(10));
+	}
+	static inline function count<T:Countable>(v:T) {
+		return v.count();
+	}
+
+	@:js('
 		var x_foo = 1;
 		var x_bar = 2;
-		var y = x_foo;
-		var z = x_bar;
+		var y = 1;
+		var z = 2;
 	')
 	static function testStructureInline1() {
 		var x = {
@@ -98,11 +121,11 @@ class Test {
 		var z = x.bar;
 	}
 
-	@:js('var x = { \'oh-my\' : "god"};')
+	@:js('var x = { "oh-my" : "god"};')
 	static function testStructureInlineInvalidField() {
-        var x = {
-            "oh-my": "god"
-        };
+		var x = {
+			"oh-my": "god"
+		};
 	}
 
 	@:js('
@@ -117,26 +140,55 @@ class Test {
 
 	@:js('
 		var a = [1,2];
-		a[-1];
+		var b = a[-1];
 	')
 	static function testArrayInlineCancelNegative() {
 		var a = [1, 2];
-		a[-1];
+		var b = a[-1];
 	}
 
 	@:js('
 		var a = [1,2];
-		a[2];
+		var b = a[2];
 	')
 	static function testArrayInlineCancelExceeds() {
 		var a = [1, 2];
-		a[2];
+		var b = a[2];
 	}
 
 	@:js('
-		var s = "" + "a";
+		var s = "a";
 	')
 	static function testAbstractOverStringBinop() {
 		var s = "" + A;
+	}
+
+	@:js('
+		var a = true;
+		var b = 0;
+		b = 1;
+	')
+	static function testSwitch1() {
+		var a = true;
+		var b = 0;
+		switch (a) {
+			case true: b = 1;
+			case false: b = 2;
+		}
+	}
+
+	@:js('
+		var a = true;
+		var b = 0;
+		a = true;
+	')
+	static function testSwitch2() {
+		var a = true;
+		var b = 0;
+		switch (b) {
+			case -1: a = false;
+			default: a = true;
+		}
+		a;
 	}
 }

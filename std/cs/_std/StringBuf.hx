@@ -1,5 +1,5 @@
 /*
- * Copyright (C)2005-2012 Haxe Foundation
+ * Copyright (C)2005-2019 Haxe Foundation
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -19,36 +19,42 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
+
+import cs.system.text.StringBuilder;
+
 @:coreApi
 class StringBuf {
+	private var b:StringBuilder;
 
-	private var b : cs.StringBuilder;
+	public var length(get, never):Int;
 
-	public var length(get,never) : Int;
-
-	public function new() : Void {
-		b = new cs.StringBuilder();
+	public inline function new():Void {
+		b = new StringBuilder();
 	}
 
-	inline function get_length() : Int {
+	inline function get_length():Int {
 		return b.Length;
 	}
 
-	public inline function add<T>( x : T ) : Void {
+	public inline function add<T>(x:T):Void {
 		b.Append(Std.string(x));
 	}
 
-	public function addSub( s : String, pos : Int, ?len : Int ) : Void {
-		var l:Int = (len == null) ? (s.length - pos) : len;
-		b.Append(s, pos, l);
+	public inline function addSub(s:String, pos:Int, ?len:Int):Void {
+		b.Append(s, pos, (len == null) ? (s.length - pos) : len);
 	}
 
-	public inline function addChar( c : Int ) : Void untyped {
-		b.Append(cast(c, cs.StdTypes.Char16));
-	}
+	public function addChar(c:Int):Void
+		untyped {
+			if (c >= 0x10000) {
+				b.Append(cast((c >> 10) + 0xD7C0, cs.StdTypes.Char16));
+				b.Append(cast((c & 0x3FF) + 0xDC00, cs.StdTypes.Char16));
+			} else {
+				b.Append(cast(c, cs.StdTypes.Char16));
+			}
+		}
 
-	public function toString() : String {
+	public inline function toString():String {
 		return b.ToString();
 	}
-
 }
